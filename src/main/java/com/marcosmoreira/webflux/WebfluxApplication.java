@@ -12,6 +12,8 @@ public class WebfluxApplication {
     }
 
     public static void main(String[] args) {
+//        System.setProperty("reactor.netty.ioWorkerCount", "100");
+        //ativar numero de threads para comparar com tomcat durante teste de stress
         SpringApplication.run(WebfluxApplication.class, args);
     }
 }

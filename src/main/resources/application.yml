@@ -3,3 +3,14 @@ spring:
     url: r2dbc:postgresql://localhost:5432/postgres?schema=anime
     username: root
     password: root
+
+logging:
+  level:
+    org:
+      springframework:
+        r2dbc: DEBUG
+
+#esconde errors do trace qnd retornar 404
+server:
+  error:
+    include-stacktrace: on_param
