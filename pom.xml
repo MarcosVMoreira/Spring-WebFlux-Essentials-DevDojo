@@ -17,6 +17,11 @@
         <java.version>11</java.version>
     </properties>
     <dependencies>
+
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-tools</artifactId>
+        </dependency>
         <dependency>
             <groupId>io.projectreactor.tools</groupId>
             <artifactId>blockhound</artifactId>
