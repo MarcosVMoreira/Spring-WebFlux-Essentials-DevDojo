@@ -36,7 +36,12 @@ public class GlobalExceptionHandler extends AbstractErrorWebExceptionHandler {
     }
 
     private Mono<ServerResponse> formatErrorResponse(ServerRequest request) {
-        Map<String, Object> errorAttributes = getErrorAttributes(request, ErrorAttributeOptions.defaults());
+        ErrorAttributeOptions errorAttributeOptions = isTraceEnabled(request) ?
+                ErrorAttributeOptions.of(ErrorAttributeOptions.Include.STACK_TRACE) :
+                ErrorAttributeOptions.defaults();
+
+        Map<String, Object> errorAttributes = getErrorAttributes(request, errorAttributeOptions);
+
         int status = (int) Optional.of(errorAttributes.get("status")).orElse(500);
         return ServerResponse.status(status)
                 .contentType(MediaType.APPLICATION_JSON)
