@@ -27,4 +27,15 @@ public class AnimeService {
     public <T> Mono<T> monoResponseStatusNotFoundException() {
         return Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Anime not found"));
     }
+
+    public Mono<AnimeDomain> save(AnimeDomain animeDomain) {
+        return animeRepository.save(animeDomain);
+    }
+
+    public Mono<Void> update(AnimeDomain animeDomain) {
+        return findById(animeDomain.getId())
+                .map(foundAnime -> animeDomain.withId(foundAnime.getId()))
+                .flatMap(animeRepository::save)
+                .thenEmpty(Mono.empty());
+    }
 }
