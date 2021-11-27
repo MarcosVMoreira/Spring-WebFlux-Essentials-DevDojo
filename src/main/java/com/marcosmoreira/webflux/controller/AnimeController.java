@@ -5,6 +5,7 @@ import com.marcosmoreira.webflux.service.AnimeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,9 +43,15 @@ public class AnimeController {
         return animeService.save(animeDomain);
     }
 
-    @PutMapping
+    @PutMapping(path = "{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public Mono<Void> update(@Valid @RequestBody AnimeDomain animeDomain) {
-        return animeService.update(animeDomain);
+    public Mono<Void> update(@PathVariable int id, @Valid @RequestBody AnimeDomain animeDomain) {
+        return animeService.update(animeDomain.withId(id));
+    }
+
+    @DeleteMapping(path = "{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public Mono<Void> delete(@PathVariable int id) {
+        return animeService.delete(id);
     }
 }
