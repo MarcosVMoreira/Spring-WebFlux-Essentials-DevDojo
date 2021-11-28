@@ -24,6 +24,7 @@ import reactor.test.StepVerifier;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 
 @ExtendWith(SpringExtension.class)
@@ -42,6 +43,25 @@ class AnimeServiceTest {
         BlockHound.install();
     }
 
+    @BeforeEach
+    public void setup() {
+        BDDMockito.when(animeRepository.findAll())
+                .thenReturn(Flux.just(animeDomain));
+
+        BDDMockito.when(animeRepository.findById(anyInt()))
+                .thenReturn(Mono.just(animeDomain));
+
+        BDDMockito.when(animeRepository.save(AnimeCreator.createAnimeToBeSaved()))
+                .thenReturn(Mono.just(animeDomain));
+
+        BDDMockito.when(animeRepository.delete(any(AnimeDomain.class)))
+                .thenReturn(Mono.empty());
+
+        BDDMockito.when(animeRepository.save(AnimeCreator.createValidAnime()))
+                .thenReturn(Mono.empty());
+
+    }
+
     @Test
     public void blockHoundWorks() {
         try {
@@ -58,18 +78,9 @@ class AnimeServiceTest {
         }
     }
 
-    @BeforeEach
-    public void setup() {
-        BDDMockito.when(animeRepository.findAll())
-                .thenReturn(Flux.just(animeDomain));
-
-        BDDMockito.when(animeRepository.findById(anyInt()))
-                .thenReturn(Mono.just(animeDomain));
-    }
-
     @Test
     @DisplayName("find all returns a flux of anime")
-    public void findAll_ReturnFluxOfAnime_WhenSuccessfull() {
+    public void findAll_ReturnFluxOfAnime_WhenSuccessful() {
         StepVerifier.create(animeService.findAll())
                 .expectSubscription()
                 .expectNext(animeDomain)
@@ -78,7 +89,7 @@ class AnimeServiceTest {
 
     @Test
     @DisplayName("findById returns Mono with anime when it exists")
-    public void findById_ReturnMonoAnime_WhenSuccessfull() {
+    public void findById_ReturnMonoAnime_WhenSuccessful() {
         StepVerifier.create(animeService.findById(1))
                 .expectSubscription()
                 .expectNext(animeDomain)
@@ -95,5 +106,56 @@ class AnimeServiceTest {
                 .expectSubscription()
                 .expectError(ResponseStatusException.class)
                 .verify();
+    }
+
+    @Test
+    @DisplayName("save creates an anime when successfull")
+    public void save_CreatesAnime_WhenSuccessful(){
+        AnimeDomain animeToBeSaved = AnimeCreator.createAnimeToBeSaved();
+
+        StepVerifier.create(animeService.save(animeToBeSaved))
+                .expectSubscription()
+                .expectNext(animeDomain)
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("delete removes then anime when successful")
+    public void delete_RemovesAnime_WhenSuccessful(){
+        StepVerifier.create(animeService.delete(1))
+                .expectSubscription()
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("delete returns Mono error when anime does not exist")
+    public void delete_ReturnMonoError_WhenEmptyMonoIsReturned(){
+        BDDMockito.when(animeRepository.findById(anyInt()))
+                .thenReturn(Mono.empty());
+
+        StepVerifier.create(animeService.delete(1))
+                .expectSubscription()
+                .expectError(ResponseStatusException.class)
+                .verify();
+    }
+
+    @Test
+    @DisplayName("update returns Mono error when anime does exist")
+    public void update_ReturnMonoError_WhenEmptyMonoIsReturned(){
+        BDDMockito.when(animeRepository.findById(anyInt()))
+                .thenReturn(Mono.empty());
+
+        StepVerifier.create(animeService.update(AnimeCreator.createValidUpdatedAnime()))
+                .expectSubscription()
+                .expectError(ResponseStatusException.class)
+                .verify();
+    }
+
+    @Test
+    @DisplayName("update save updated anime and returns empty mono when successful")
+    public void update_SaveUpdatedAnime_WhenSuccessful(){
+        StepVerifier.create(animeService.update(AnimeCreator.createValidAnime()))
+                .expectSubscription()
+                .verifyComplete();
     }
 }
