@@ -75,4 +75,14 @@ public class AnimeControllerIT {
                 .jsonPath("$.[0].id").isEqualTo(animeDomain.getId())
                 .jsonPath("$.[0].name").isEqualTo(animeDomain.getName());
     }
+
+    @Test //má prática. Nao fazer testes de integracao assim
+    public void findAll_ReturnFluxOfAnime_WhenSuccessful_OutraManeira() {
+        testClient.get()
+                .uri("/animes")
+                .exchange()
+                .expectBodyList(AnimeDomain.class)
+                .hasSize(1)
+                .contains(animeDomain);
+    }
 }
