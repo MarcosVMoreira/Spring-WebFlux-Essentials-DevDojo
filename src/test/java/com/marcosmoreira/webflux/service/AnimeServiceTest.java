@@ -57,7 +57,7 @@ class AnimeServiceTest {
         BDDMockito.when(animeRepository.delete(any(AnimeDomain.class)))
                 .thenReturn(Mono.empty());
 
-        BDDMockito.when(animeRepository.save(AnimeCreator.createValidAnime()))
+        BDDMockito.when(animeRepository.save(AnimeCreator.createValidUpdatedAnime()))
                 .thenReturn(Mono.empty());
 
     }
@@ -154,7 +154,10 @@ class AnimeServiceTest {
     @Test
     @DisplayName("update save updated anime and returns empty mono when successful")
     public void update_SaveUpdatedAnime_WhenSuccessful(){
-        StepVerifier.create(animeService.update(AnimeCreator.createValidAnime()))
+        BDDMockito.when(animeRepository.findById(anyInt()))
+                .thenReturn(Mono.just(AnimeCreator.createValidUpdatedAnime()));
+
+        StepVerifier.create(animeService.update(AnimeCreator.createValidUpdatedAnime()))
                 .expectSubscription()
                 .verifyComplete();
     }
