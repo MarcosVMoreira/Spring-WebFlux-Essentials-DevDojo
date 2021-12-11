@@ -32,8 +32,9 @@ public class AnimeService {
         return animeRepository.save(animeDomain);
     }
 
-    public Mono<Void> update(AnimeDomain animeDomain) {
-        return findById(animeDomain.getId())
+    public Mono<Void> update(AnimeDomain animeDomain, int id) {
+        return findById(id)
+                .map(animeFound -> animeDomain.withId(animeFound.getId()))
                 .flatMap(animeRepository::save)
                 .then();
     }

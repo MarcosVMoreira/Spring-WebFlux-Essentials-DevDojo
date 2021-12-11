@@ -48,7 +48,7 @@ public class AnimeController {
     @PutMapping(path = "{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public Mono<Void> update(@PathVariable int id, @Valid @RequestBody AnimeDomain animeDomain) {
-        return animeService.update(animeDomain.withId(id));
+        return animeService.update(animeDomain.withId(id), id);
     }
 
     @DeleteMapping(path = "{id}")

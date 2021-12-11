@@ -145,7 +145,7 @@ class AnimeServiceTest {
         BDDMockito.when(animeRepository.findById(anyInt()))
                 .thenReturn(Mono.empty());
 
-        StepVerifier.create(animeService.update(AnimeCreator.createValidUpdatedAnime()))
+        StepVerifier.create(animeService.update(AnimeCreator.createValidUpdatedAnime(), 1))
                 .expectSubscription()
                 .expectError(ResponseStatusException.class)
                 .verify();
@@ -157,7 +157,7 @@ class AnimeServiceTest {
         BDDMockito.when(animeRepository.findById(anyInt()))
                 .thenReturn(Mono.just(AnimeCreator.createValidUpdatedAnime()));
 
-        StepVerifier.create(animeService.update(AnimeCreator.createValidUpdatedAnime()))
+        StepVerifier.create(animeService.update(AnimeCreator.createValidUpdatedAnime(), 1))
                 .expectSubscription()
                 .verifyComplete();
     }
