@@ -18,6 +18,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -43,6 +44,12 @@ public class AnimeController {
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<AnimeDomain> save(@Valid @RequestBody AnimeDomain animeDomain) {
         return animeService.save(animeDomain);
+    }
+
+    @PostMapping("/batch")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Flux<AnimeDomain> saveBatch(@Valid @RequestBody List<AnimeDomain> animeDomain) {
+        return animeService.saveAll(animeDomain);
     }
 
     @PutMapping(path = "{id}")

@@ -21,11 +21,13 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
 
+import java.util.List;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyIterable;
 
 @ExtendWith(SpringExtension.class)
 class AnimeServiceTest {
@@ -60,6 +62,9 @@ class AnimeServiceTest {
         BDDMockito.when(animeRepository.save(AnimeCreator.createValidUpdatedAnime()))
                 .thenReturn(Mono.empty());
 
+        BDDMockito.when(animeRepository.saveAll(List.of(AnimeCreator.createAnimeToBeSaved(),
+               AnimeCreator.createAnimeToBeSaved())))
+                .thenReturn(Flux.just(animeDomain, animeDomain));
     }
 
     @Test
@@ -117,6 +122,32 @@ class AnimeServiceTest {
                 .expectSubscription()
                 .expectNext(animeDomain)
                 .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("saveAll creates a list of anime when successfull")
+    public void saveAll_CreatesListOfAnime_WhenSuccessful(){
+        AnimeDomain animeToBeSaved = AnimeCreator.createAnimeToBeSaved();
+
+        StepVerifier.create(animeService.saveAll(List.of(animeToBeSaved, animeToBeSaved)))
+                .expectSubscription()
+                .expectNext(animeDomain, animeDomain)
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("saveAll returns Mono error when one of the objects in the list contains null or empty name")
+    public void saveAll_ReturnsMonoError_WhenContainsInvalidName(){
+        AnimeDomain animeToBeSaved = AnimeCreator.createAnimeToBeSaved();
+
+        BDDMockito.when(animeRepository.saveAll(anyIterable()))
+                .thenReturn(Flux.just(animeDomain, animeDomain.withName("")));
+
+        StepVerifier.create(animeService.saveAll(List.of(animeToBeSaved, animeToBeSaved.withName(""))))
+                .expectSubscription()
+                .expectNext(animeDomain)
+                .expectError(ResponseStatusException.class)
+                .verify();
     }
 
     @Test

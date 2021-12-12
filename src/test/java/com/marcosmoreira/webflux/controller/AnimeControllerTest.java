@@ -20,6 +20,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
 
+import java.util.List;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
@@ -57,6 +58,10 @@ class AnimeControllerTest {
 
         BDDMockito.when(animeService.update(AnimeCreator.createValidUpdatedAnime(), 1))
                 .thenReturn(Mono.empty());
+
+        BDDMockito.when(animeService.saveAll(List.of(AnimeCreator.createAnimeToBeSaved(),
+                AnimeCreator.createAnimeToBeSaved())))
+                .thenReturn(Flux.just(animeDomain, animeDomain));
     }
 
     @Test
@@ -120,4 +125,16 @@ class AnimeControllerTest {
                 .expectSubscription()
                 .verifyComplete();
     }
+
+    @Test
+    @DisplayName("saveBatch creates a list of anime when successfull")
+    public void saveBatch_CreatesListOfAnime_WhenSuccessful(){
+        AnimeDomain animeToBeSaved = AnimeCreator.createAnimeToBeSaved();
+
+        StepVerifier.create(animeController.saveBatch(List.of(animeToBeSaved, animeToBeSaved)))
+                .expectSubscription()
+                .expectNext(animeDomain, animeDomain)
+                .verifyComplete();
+    }
+
 }

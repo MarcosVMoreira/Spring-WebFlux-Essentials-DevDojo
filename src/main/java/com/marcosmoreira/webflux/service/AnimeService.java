@@ -2,12 +2,16 @@ package com.marcosmoreira.webflux.service;
 
 import com.marcosmoreira.webflux.domain.AnimeDomain;
 import com.marcosmoreira.webflux.repository.AnimeRepository;
+import io.netty.util.internal.StringUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -42,5 +46,17 @@ public class AnimeService {
     public Mono<Void> delete(int id) {
         return findById(id)
                 .flatMap(animeRepository::delete);
+    }
+
+    @Transactional
+    public Flux<AnimeDomain> saveAll(List<AnimeDomain> animeDomain) {
+        return animeRepository.saveAll(animeDomain)
+                .doOnNext(this::throwResponseStatusExceptionWhenEmptyName);
+    }
+
+    private void throwResponseStatusExceptionWhenEmptyName(AnimeDomain animeDomain) {
+        if (StringUtil.isNullOrEmpty(animeDomain.getName()))  {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid name");
+        }
     }
 }

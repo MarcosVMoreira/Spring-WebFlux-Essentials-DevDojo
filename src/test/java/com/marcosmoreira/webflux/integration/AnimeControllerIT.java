@@ -190,6 +190,8 @@ public class AnimeControllerIT {
     @Test
     @DisplayName("update save updated anime and returns empty mono when successful")
     public void update_SaveUpdatedAnime_WhenSuccessful(){
+        BDDMockito.when(animeRepository.findById(anyInt()))
+                .thenReturn(Mono.just(AnimeCreator.createAnimeToBeSaved()));
 
         testClient.put()
                 .uri("/animes/{id}", 1)
